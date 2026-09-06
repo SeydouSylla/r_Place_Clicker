@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/entete :: head('Regles du jeu')}"></head>
+<body class="page-regles">
+
+<div th:replace="~{fragments/entete :: entete}"></div>
+
+<main class="conteneur-regles">
+    <h1>Regles du jeu</h1>
+
+    <section>
+        <h2>Principe general</h2>
+        <p>
+            r/Place Clicker combine une grille de pixels partagee (r/Place)
+            et un systeme economique (Cookie Clicker). Chaque joueur
+            authentifie peut poser des pixels sur la grille visible
+            par tous en temps reel, sans limite de joueurs simultanes.
+        </p>
+    </section>
+
+    <section>
+        <h2>Les credits</h2>
+        <ul>
+            <li>
+                Chaque joueur commence avec <strong>50 credits</strong>.
+            </li>
+            <li>
+                +1 credit <strong>toutes les 10 secondes</strong>
+                passivement.
+            </li>
+            <li>
+                Cliquez sur "Miner" pour
+                <strong>+1 credit immediatement</strong>.
+            </li>
+            <li>
+                Achetez des generateurs pour augmenter la production
+                automatique.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Le prix des pixels</h2>
+        <ul>
+            <li>
+                Un pixel <strong>vierge</strong> coute
+                <strong>10 credits</strong>.
+            </li>
+            <li>
+                Chaque recouvrement augmente le prix de
+                <strong>5 credits</strong>.
+            </li>
+            <li>
+                Formule : prix = 10 + (nombre de recouvrements &times; 5)
+            </li>
+            <li>
+                Exemple : un pixel colorie 3 fois coute 25 credits.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Les bonus Cookie Clicker</h2>
+        <ul>
+            <li>
+                <strong>Generateurs</strong> (Curseur, Grand-mere, Ferme, Mine, Usine) :
+                produisent des credits automatiquement. Le prix augmente
+                de 15% a chaque achat supplementaire (comme le Cookie Clicker original).
+            </li>
+            <!--
+                On a mis a jour cette regle pour refleter ce qui est vraiment
+                implemente : seul le pinceau large existe en capacite
+            -->
+            <li>
+                <strong>Pinceau large</strong> (capacite, 5000 credits) :
+                une fois achete, chaque clic sur la grille pose un
+                <strong>carre 2&times;2 (4 pixels)</strong> au lieu d'un seul.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>La grille</h2>
+        <ul>
+            <li>
+                Grille de <strong>50&times;50 pixels</strong>
+                (2500 cases au total).
+            </li>
+            <li>
+                Tout visiteur peut <strong>observer</strong> en
+                temps reel.
+            </li>
+            <li>
+                Seuls les joueurs <strong>connectes</strong>
+                posent des pixels.
+            </li>
+            <li>
+                Survolez un pixel pour voir son auteur et son prix.
+            </li>
+        </ul>
+    </section>
+</main>
+
+<div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
