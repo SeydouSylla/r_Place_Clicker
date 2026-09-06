@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/entete :: head('Connexion')}"></head>
+<body class="page-auth">
+
+    <div th:replace="~{fragments/entete :: entete}"></div>
+
+    <main class="conteneur-auth">
+        <h1>Se connecter</h1>
+
+        <!-- Message d'erreur si identifiants incorrects -->
+        <div th:if="${param.erreur}" class="alerte alerte-erreur">
+            Pseudo ou mot de passe incorrect.
+        </div>
+
+        <!-- Message de succes apres inscription -->
+        <div th:if="${param.inscriptionReussie}" class="alerte alerte-succes">
+            Inscription reussie ! Vous pouvez vous connecter.
+        </div>
+
+        <!-- Message apres deconnexion -->
+        <div th:if="${param.deconnecte}" class="alerte alerte-succes">
+            Vous avez ete deconnecte avec succes.
+        </div>
+
+        <!-- Cette partie on a utilise la documentation officielle de Thymeleaf
+        https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#creating-a-form
+        -->
+        <!-- Formulaire de connexion -->
+        <form th:action="@{/connexion}" method="post">
+            <div class="champ-formulaire">
+                <label for="pseudo">Pseudo</label>
+                <input type="text" id="pseudo" name="pseudo"
+                       required autofocus placeholder="Votre pseudo">
+            </div>
+
+            <div class="champ-formulaire">
+                <label for="motDePasse">Mot de passe</label>
+                <input type="password" id="motDePasse" name="motDePasse"
+                       required placeholder="Votre mot de passe">
+            </div>
+
+            <!-- Ici le token CSRF gere automatiquement par Thymeleaf + Spring Security -->
+            <button type="submit" class="bouton-principal">
+                Se connecter
+            </button>
+        </form>
+
+        <p class="lien-secondaire">
+            Pas encore de compte ?
+            <a th:href="@{/inscription}">S'inscrire</a>
+        </p>
+    </main>
+
+    <div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
