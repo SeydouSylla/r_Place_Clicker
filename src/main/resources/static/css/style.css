@@ -1,0 +1,558 @@
+/* Pour ce selecteur, on a definir certaines variables
+ qu'on va pouvoir reutiliser apres*/
+:root {
+    --primaire: #e03d3d;
+    --secondaire: #2c2c2c;
+    --fond: #f5f5f5;
+    --texte: #333333;
+    --bordure: #dddddd;
+    --succes: #27ae60;
+    --erreur: #e74c3c;
+    --es: 8px;   /* espacement small */
+    --em: 16px;  /* espacement medium */
+    --el: 32px;  /* espacement large */
+    --rb: 6px;   /* rayon bordure */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--fond);
+    color: var(--texte);
+    line-height: 1.6;
+}
+
+/* En tete */
+.entete {
+    background: var(--secondaire);
+    color: white;
+    padding: var(--em) var(--el);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--primaire);
+    text-decoration: none;
+}
+
+.menu-nav {
+    display: flex;
+    list-style: none;
+    gap: var(--el);
+}
+
+.menu-nav a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.menu-nav a:hover { color: var(--primaire); }
+
+.menu-utilisateur {
+    display: flex;
+    gap: var(--em);
+    align-items: center;
+}
+
+.lien-profil { color: white; text-decoration: none; font-size: 0.9rem; }
+
+/* Les boutons */
+.bouton-principal {
+    background: var(--primaire);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--rb);
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+}
+.bouton-principal:hover {
+    background: #c0392b;
+}
+
+.bouton-secondaire {
+    background: transparent;
+    color: var(--primaire);
+    border: 2px solid var(--primaire);
+    padding: 8px 18px;
+    border-radius: var(--rb);
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+}
+.bouton-secondaire:hover {
+    background: var(--primaire);
+    color: white;
+}
+
+.bouton-connexion, .bouton-deconnexion {
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: var(--rb);
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.bouton-connexion:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.bouton-inscription {
+    background: var(--primaire);
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: var(--rb);
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+.bouton-inscription:hover {
+    background: #c0392b;
+}
+
+/* ===== ALERTES ===== */
+.alerte {
+    padding: var(--em);
+    border-radius: var(--rb);
+    margin-bottom: var(--em);
+}
+.alerte-erreur {
+    background: #fdecea;
+    color: var(--erreur);
+    border: 1px solid var(--erreur);
+}
+.alerte-succes {
+    background: #eafaf1;
+    color: var(--succes);
+    border: 1px solid var(--succes);
+}
+
+/* Formulaires */
+.conteneur-auth {
+    max-width: 420px;
+    margin: var(--el) auto;
+    background: white;
+    padding: var(--el);
+    border-radius: var(--rb);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.champ-formulaire {
+    margin-bottom: var(--em);
+}
+
+.champ-formulaire label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.champ-formulaire input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rb);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+.champ-formulaire input:focus {
+    outline: none;
+    border-color: var(--primaire);
+}
+
+.erreur-champ {
+    color: var(--erreur);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+}
+
+.lien-secondaire {
+    text-align: center;
+    margin-top: var(--em);
+    font-size: 0.9rem;
+    color: #666;
+}
+.lien-secondaire a {
+    color: var(--primaire);
+}
+
+/* Accueil */
+.conteneur-accueil {
+    max-width: 800px;
+    margin: var(--el) auto;
+    text-align: center;
+    padding: var(--el);
+}
+.conteneur-accueil h1 {
+    font-size: 3rem;
+    color: var(--primaire);
+    margin-bottom: var(--em);
+}
+.slogan {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: var(--el);
+}
+.boutons-accueil {
+    display: flex;
+    gap: var(--em);
+    justify-content: center;
+    margin-bottom: var(--el);
+}
+.resume-regles {
+    background: white;
+    padding: var(--el);
+    border-radius: var(--rb);
+    text-align: left;
+}
+.resume-regles h2 {
+    margin-bottom: var(--em);
+}
+.resume-regles a {
+    color: var(--primaire);
+}
+
+/* PAGE JEU */
+
+/* Mise en page de la page jeu en 3 colonnes : grille, cliqueur, classement */
+/* Source CSS Grid : https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout */
+.conteneur-jeu {
+    display: grid;
+    grid-template-columns: 520px 280px 1fr;
+    gap: var(--el);
+    align-items: start;
+    max-width: 1200px;
+    margin: var(--em) auto;
+    padding: var(--em);
+}
+
+/* Style du canvas de la grille */
+/* cursor crosshair pour montrer que la grille est cliquable */
+#grille {
+    border: 2px solid var(--secondaire);
+    cursor: crosshair;
+    display: block;
+}
+
+/* Bulle d'info qui apparait au survol d'un pixel */
+/* position fixed pour qu'elle suive la souris sur toute la page */
+/* pointer-events none pour qu'elle ne bloque pas les clics */
+.info-pixel {
+    position: fixed;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: var(--rb);
+    font-size: 0.85rem;
+    pointer-events: none;
+    z-index: 200;
+}
+
+/* Ligne avec le selecteur de couleur et le prix du pixel */
+.selecteur-couleur {
+    margin-top: var(--em);
+    display: flex;
+    align-items: center;
+    gap: var(--em);
+}
+
+/* Prix affiche en rouge pour attirer l'attention */
+.prix-pixel {
+    font-weight: bold;
+    color: var(--primaire);
+}
+
+/* Message affiche aux visiteurs non connectes */
+.message-visiteur {
+    margin-top: var(--em);
+    color: #666;
+    font-style: italic;
+}
+
+.message-visiteur a {
+    color: var(--primaire);
+}
+
+/* Sections Cookie Clicker et classement avec fond blanc */
+.section-cliqueur,
+.section-classement {
+    background: white;
+    padding: var(--em);
+    border-radius: var(--rb);
+    border: 1px solid var(--bordure);
+}
+
+/* Affichage du solde de credits en grand au centre */
+.affichage-credits {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primaire);
+    text-align: center;
+    margin: var(--em) 0;
+}
+
+/* Bouton de minage manuel - orange comme dans Cookie Clicker */
+/* Source transition : https://developer.mozilla.org/fr/docs/Web/CSS/transition */
+.bouton-miner {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    background: #f39c12;
+    color: white;
+    border: none;
+    border-radius: var(--rb);
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.bouton-miner:hover {
+    background: #e67e22;
+}
+
+/* Classe ajoutee temporairement par cliqueur.js au moment du clic */
+/* reduit le bouton a 95% pour simuler un appui physique */
+.bouton-miner.anime {
+    transform: scale(0.95);
+}
+
+.section-cliqueur h3 {
+    margin: var(--em) 0 var(--es);
+    font-size: 1rem;
+}
+
+/* Carte d'un bonus - creee dynamiquement par cliqueur.js */
+.carte-bonus {
+    background: #f9f9f9;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rb);
+    padding: var(--es);
+    margin-top: var(--es);
+}
+
+.carte-bonus strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.carte-bonus p {
+    font-size: 0.82rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+/* Ligne en bas de la carte avec le prix et le bouton acheter */
+/* Source flexbox : https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Flexible_box_layout */
+.bonus-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/* Prix du bonus en orange */
+.prix-bonus {
+    font-weight: bold;
+    color: #f39c12;
+    font-size: 0.85rem;
+}
+
+/* Quantite possedee en gris a droite */
+.quantite-bonus {
+    font-size: 0.8rem;
+    color: #888;
+    float: right;
+}
+
+/* Bouton acheter vert - cree dynamiquement par cliqueur.js */
+.bouton-acheter {
+    padding: 4px 10px;
+    background: var(--succes);
+    color: white;
+    border: none;
+    border-radius: var(--rb);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.bouton-acheter:hover {
+    background: #219a52;
+}
+
+/* Ligne du classement - creee dynamiquement par api.js */
+.ligne-classement {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--bordure);
+    font-size: 0.9rem;
+}
+
+/* Rang en rouge */
+.rang {
+    font-weight: bold;
+    color: var(--primaire);
+    width: 20px;
+}
+
+/* Pseudo au centre */
+.pseudo {
+    flex: 1;
+    margin: 0 8px;
+}
+
+/* Nombre de pixels a droite en gris */
+.pixels {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* Lien vers la page stats complete */
+.lien-stats {
+    display: block;
+    text-align: center;
+    margin-top: var(--em);
+    color: var(--primaire);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+/* Message affiche quand le classement est vide */
+.vide {
+    color: #666;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: var(--es);
+}
+
+
+/* STATS */
+.conteneur-stats {
+    max-width: 1000px;
+    margin: var(--el) auto;
+    padding: 0 var(--em);
+}
+.conteneur-stats section {
+    background: white;
+    padding: var(--el);
+    border-radius: var(--rb);
+    margin-bottom: var(--el);
+}
+.tableau-classement {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--em);
+}
+.tableau-classement th, .tableau-classement td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--bordure);
+}
+.tableau-classement th {
+    background: var(--secondaire);
+    color: white;
+    font-weight: 600;
+}
+.tableau-classement tr:hover {
+    background: #f9f9f9;
+}
+.tableau-classement a {
+    color: var(--primaire);
+    text-decoration: none;
+}
+
+/* PROFIL */
+.conteneur-profil {
+    max-width: 700px;
+    margin: var(--el) auto;
+    padding: 0 var(--em);
+}
+.conteneur-profil section {
+    background: white;
+    padding: var(--el);
+    border-radius: var(--rb);
+    margin-bottom: var(--el);
+}
+.conteneur-profil section h2 {
+    margin-bottom: var(--em);
+    padding-bottom: var(--es);
+    border-bottom: 2px solid var(--primaire);
+}
+.conteneur-profil p { margin-bottom: var(--es); }
+
+/* REGLES */
+.conteneur-regles {
+    max-width: 800px;
+    margin: var(--el) auto;
+    padding: var(--el);
+    background: white;
+    border-radius: var(--rb);
+}
+.conteneur-regles section {
+    margin-bottom: var(--el);
+}
+.conteneur-regles h2 {
+    color: var(--primaire);
+    margin-bottom: var(--em);
+}
+.conteneur-regles ul {
+    margin-left: var(--el);
+    margin-top: var(--es);
+}
+.conteneur-regles li {
+    margin-bottom: var(--es);
+}
+
+/* PIED DE PAGE */
+.pied-page {
+    background: var(--secondaire);
+    color: #aaa;
+    text-align: center;
+    padding: var(--em);
+    margin-top: var(--el);
+    font-size: 0.9rem;
+}
+.pied-page a {
+    color: var(--primaire);
+    text-decoration: none;
+}
+
+/* NOTIFICATION TEMPORAIRE */
+#notification-temp {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 999;
+    min-width: 250px;
+    animation: fadeOut 0.5s ease 2.5s forwards;
+}
+@keyframes fadeOut {
+    from { opacity:1; } to { opacity:0; }
+}
