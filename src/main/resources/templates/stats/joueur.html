@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/entete :: head('Profil joueur')}"></head>
+<body class="page-stats">
+
+<div th:replace="~{fragments/entete :: entete}"></div>
+
+<main class="conteneur-profil">
+    <h1>Profil de <span th:text="${joueur.pseudo}">joueur</span></h1>
+
+    <section class="info-readonly">
+        <!--
+            On affiche maintenant toutes les infos personnelles
+            (pseudo, age, pays, date d'inscription) plus les stats du joueur
+            "Des informations sur chaque joueur : en plus des informations personnelles,
+             on precisera le nombre de pixels places depuis le debut, le nombre de pixels
+             encore en place, le record d'age pour un pixel etc..."
+        -->
+        <p>
+            <strong>Age :</strong>
+            <span th:text="${joueur.age != null ? joueur.age : 'Non renseigne'}">-</span>
+        </p>
+        <p>
+            <strong>Pays :</strong>
+            <span th:text="${joueur.pays != null ? joueur.pays : 'Non renseigne'}">-</span>
+        </p>
+        <p>
+            <strong>Inscrit depuis le :</strong>
+            <span th:text="${#temporals.format(dateInscription, 'dd/MM/yyyy')}">date</span>
+        </p>
+        <p>
+            <strong>Pixels en place :</strong>
+            <span th:text="${joueur.nbPixelsEnPlace}">0</span>
+        </p>
+        <p>
+            <strong>Total pixels poses :</strong>
+            <span th:text="${joueur.nbPixelsTotalPoses}">0</span>
+        </p>
+        <!--
+            record d'age pour un pixel ce record peut concerner
+            un pixel qui n'existe plus aujourd'hui (il a ete recouvert)
+        -->
+        <p>
+            <strong>Record d'age pour un pixel :</strong>
+            <span th:text="${recordAge}">—</span>
+        </p>
+        <p th:if="${pixelLePlusAncien != null}">
+            <strong>Pixel le plus ancien encore en place :</strong>
+            (<span th:text="${pixelLePlusAncien.positionX}">0</span>,
+            <span th:text="${pixelLePlusAncien.positionY}">0</span>)
+            &mdash;
+            <span th:text="${#temporals.format(pixelLePlusAncien.datePose,
+                    'dd/MM/yyyy HH:mm')}">date</span>
+        </p>
+        <p th:if="${pixelLePlusAncien == null}">
+            <strong>Pixel le plus ancien encore en place :</strong>
+            Aucun.
+        </p>
+    </section>
+
+    <a th:href="@{/stats}" class="bouton-secondaire">
+        Retour aux statistiques
+    </a>
+</main>
+
+<div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
