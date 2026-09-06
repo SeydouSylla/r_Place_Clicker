@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/entete :: head('Statistiques')}"></head>
+<body class="page-stats">
+
+<div th:replace="~{fragments/entete :: entete}"></div>
+
+<main class="conteneur-stats">
+    <h1>Statistiques et Classements</h1>
+
+    <!-- Classement par couverture de la grille -->
+    <section class="classement">
+        <h2>Classement par couverture de la grille</h2>
+        <table class="tableau-classement">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Joueur</th>
+                <th>Pixels en place</th>
+                <th>% de la grille</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--
+              th:each : boucle sur la liste (equivalent de c:forEach JSP).
+              iterStat : objet donnant l'index, le compte, etc.
+            -->
+            <tr th:each="joueur, iterStat : ${classementCouverture}">
+                <td th:text="${iterStat.index + 1}">1</td>
+                <td>
+                    <a th:href="@{/stats/joueur/{id}(id=${joueur.identifiant})}"
+                       th:text="${joueur.pseudo}">pseudo</a>
+                </td>
+                <td th:text="${joueur.nbPixelsEnPlace}">0</td>
+                <td th:text="${#numbers.formatDecimal(
+                            joueur.nbPixelsEnPlace / 25.0, 1, 2)} + '%'">
+                    0%
+                </td>
+            </tr>
+            <!-- Message si la liste est vide -->
+            <tr th:if="${classementCouverture.isEmpty()}">
+                <td colspan="4">Aucun pixel pose pour l'instant.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!--
+        Nouveau classement :
+        "liste ordonnee des joueurs dans l'ordre du plus vieux pixel par joueur"
+        Le joueur dont le pixel le plus ancien encore en place est le plus vieux
+        est en tete. Ca recompense ceux qui tiennent leur territoire dans le temps.
+    -->
+    <section class="classement">
+        <h2>Classement par anciennete du plus vieux pixel</h2>
+        <table class="tableau-classement">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Joueur</th>
+                <th>Pays</th>
+                <th>Pixels en place</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="joueur, iterStat : ${classementAncienetePixel}">
+                <td th:text="${iterStat.index + 1}">1</td>
+                <td>
+                    <a th:href="@{/stats/joueur/{id}(id=${joueur.identifiant})}"
+                       th:text="${joueur.pseudo}">pseudo</a>
+                </td>
+                <td th:text="${joueur.pays != null ? joueur.pays : '-'}">-</td>
+                <td th:text="${joueur.nbPixelsEnPlace}">0</td>
+            </tr>
+            <tr th:if="${classementAncienetePixel.isEmpty()}">
+                <td colspan="4">Aucun joueur n'a de pixel encore en place.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Liste de tous les joueurs inscrits -->
+    <section class="liste-joueurs">
+        <h2>Tous les joueurs inscrits</h2>
+        <table class="tableau-classement">
+            <thead>
+            <tr>
+                <th>Pseudo</th>
+                <th>Pays</th>
+                <th>Pixels en place</th>
+                <th>Detail</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="joueur : ${tousLesJoueurs}">
+                <td th:text="${joueur.pseudo}">pseudo</td>
+                <td th:text="${joueur.pays}">pays</td>
+                <td th:text="${joueur.nbPixelsEnPlace}">0</td>
+                <td>
+                    <a th:href="@{/stats/joueur/{id}(id=${joueur.identifiant})}">
+                        Voir le profil
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
