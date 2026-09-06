@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+  -
+  Cette partie on a utilise l'IA pour generer la structure du design du pied de page
+  et qu'on va pouvoir apres icnlure dans tous les autres templates du projet pour eviter la redondance
+-->
+<footer th:fragment="pied" class="pied-page">
+    <p>r/Place Clicker &mdash; Projet Developpement Web Avance</p>
+    <a th:href="@{/regles}">Regles du jeu</a>
+</footer>
+</html>
