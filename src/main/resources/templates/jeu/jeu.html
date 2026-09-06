@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+    Page principale du jeu - combine la grille r/Place et le Cookie Clicker
+    On utilise Thymeleaf pour injecter les donnees Java dans le HTML
+-->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- On reutilise le fragment head commun a toutes les pages -->
+<head th:replace="~{fragments/entete :: head('Jeu')}"></head>
+<body class="page-jeu">
+
+<!-- Barre de navigation commune -->
+<div th:replace="~{fragments/entete :: entete}"></div>
+
+<main class="conteneur-jeu">
+
+    <!-- Section gauche : la grille de pixels -->
+    <section class="section-grille">
+        <h2>La grille</h2>
+        <!-- Canvas 500x500 pixels = grille 50x50 cases de 10px chacune -->
+        <!-- Source Canvas : https://developer.mozilla.org/fr/docs/Web/HTML/Element/canvas -->
+        <canvas id="grille" width="500" height="500"
+                title="Cliquez pour poser un pixel"></canvas>
+
+        <!-- Bulle d'info qui apparait au survol d'un pixel -->
+        <div id="info-pixel" class="info-pixel" style="display:none">
+            <span id="auteur-pixel"></span>
+        </div>
+
+        <!-- Selecteur de couleur visible uniquement si le joueur est connecte -->
+        <!-- sec:authorize vient de Thymeleaf Extras Spring Security -->
+        <div sec:authorize="isAuthenticated()" class="selecteur-couleur">
+            <label for="couleurChoisie">Couleur choisie :</label>
+            <input type="color" id="couleurChoisie" value="#FF0000">
+            <span id="prix-pixel" class="prix-pixel">Prix : 10 credits</span>
+        </div>
+
+        <!-- Message affiche uniquement aux visiteurs non connectes -->
+        <p sec:authorize="isAnonymous()" class="message-visiteur">
+            <a th:href="@{/connexion}">Connectez-vous</a>
+            pour poser des pixels.
+        </p>
+    </section>
+
+    <!-- Section milieu : Cookie Clicker visible uniquement si connecte -->
+    <section class="section-cliqueur" sec:authorize="isAuthenticated()">
+        <h2>Vos credits</h2>
+        <!-- th:text injecte le solde du joueur depuis Java au chargement -->
+        <div class="affichage-credits">
+            <span id="nb-credits" th:text="${joueur.credits}">0</span>
+            credits
+        </div>
+        <button id="bouton-miner" class="bouton-miner">
+            Miner (+1 credit)
+        </button>
+        <h3>Generateurs</h3>
+        <!-- Liste des bonus remplie dynamiquement par cliqueur.js -->
+        <div id="liste-bonus" class="liste-bonus"></div>
+    </section>
+
+    <!-- Section droite : classement rapide des joueurs -->
+    <section class="section-classement">
+        <h2>Classement</h2>
+        <!-- Rempli dynamiquement par api.js -->
+        <div id="classement" class="classement"></div>
+        <a th:href="@{/stats}" class="lien-stats">Voir toutes les stats</a>
+    </section>
+
+</main>
+
+<!--
+    On injecte les donnees du joueur connecte dans des variables JavaScript
+    via la syntaxe inline (double crochets dollar accolades) dans un script
+-->
+<th:block th:if="${joueur != null}">
+    <script th:inline="javascript">
+        var JOUEUR_CONNECTE = true;
+        var JOUEUR_ID = [[${joueur.identifiant}]];
+    </script>
+</th:block>
+<th:block th:unless="${joueur != null}">
+    <script>
+        var JOUEUR_CONNECTE = false;
+        var JOUEUR_ID = 0;
+    </script>
+</th:block>
+
+<!-- Bibliotheques WebSocket chargees depuis un CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<!-- Nos fichiers JavaScript dans l'ordre des dependances -->
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/api.js}"></script>
+<script th:src="@{/js/grille.js}"></script>
+<script th:src="@{/js/websocket.js}"></script>
+<script th:src="@{/js/cliqueur.js}"></script>
+
+<!-- Pied de page commun -->
+<div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
