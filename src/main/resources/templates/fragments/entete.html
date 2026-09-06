@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(titre)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titre} + ' - r/Place Clicker'">r/Place Clicker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<!--
+  Cette partie on a utilise l'IA pour generer la structure du design de l'entete
+  et qu'on va pouvoir apres icnlure dans tous les autres templates du projet pour eviter la redondance
+-->
+<header th:fragment="entete" class="entete">
+    <nav class="navigation">
+        <!-- Logo -->
+        <a th:href="@{/accueil}" class="logo">r/Place Clicker</a>
+
+        <!-- Menu principal -->
+        <ul class="menu-nav">
+            <li><a th:href="@{/jeu}">La grille</a></li>
+            <li><a th:href="@{/stats}">Statistiques</a></li>
+            <li><a th:href="@{/regles}">Regles</a></li>
+        </ul>
+
+        <!-- Menu utilisateur : different si connecte ou non -->
+        <div class="menu-utilisateur">
+            <!-- Si connecte : lien profil + deconnexion -->
+            <div sec:authorize="isAuthenticated()">
+                <a th:href="@{/profil}" class="lien-profil">
+                    Mon profil (<span sec:authentication="name"></span>)
+                </a>
+                <!-- Formulaire POST pour la deconnexion (securite CSRF) -->
+                <form th:action="@{/deconnexion}" method="post"
+                      style="display:inline">
+                    <button type="submit" class="bouton-deconnexion">
+                        Deconnexion
+                    </button>
+                </form>
+            </div>
+
+            <!-- Si non connecte : liens connexion et inscription -->
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/connexion}" class="bouton-connexion">
+                    Se connecter
+                </a>
+                <a th:href="@{/inscription}" class="bouton-inscription">
+                    S'inscrire
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
+</html>

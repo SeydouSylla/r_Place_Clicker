@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/entete :: head('Inscription')}"></head>
+<body class="page-auth">
+
+    <div th:replace="~{fragments/entete :: entete}"></div>
+
+    <main class="conteneur-auth">
+        <h1>Creer un compte</h1>
+
+        <!-- Erreur globale (pseudo deja pris) -->
+        <div th:if="${erreurGlobale}" class="alerte alerte-erreur"
+             th:text="${erreurGlobale}">
+        </div>
+
+        <!-- Cette partie on a utilise la documentation officielle de Thymeleaf
+        https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#creating-a-form
+        -->
+        <!-- Formulaire de d'inscription -->
+        <form th:action="@{/inscription}" th:object="${requete}" method="post">
+
+            <div class="champ-formulaire">
+                <label for="pseudo">Pseudo</label>
+                <input type="text" id="pseudo" th:field="*{pseudo}"
+                       placeholder="Entre 3 et 20 caracteres">
+                <!-- Affiche l'erreur de validation si le champ est invalide -->
+                <span th:if="${#fields.hasErrors('pseudo')}"
+                      th:errors="*{pseudo}" class="erreur-champ">
+                </span>
+            </div>
+
+            <div class="champ-formulaire">
+                <label for="motDePasse">Mot de passe</label>
+                <input type="password" id="motDePasse" th:field="*{motDePasse}"
+                       placeholder="6 caracteres minimum">
+                <span th:if="${#fields.hasErrors('motDePasse')}"
+                      th:errors="*{motDePasse}" class="erreur-champ">
+                </span>
+            </div>
+
+            <div class="champ-formulaire">
+                <label for="age">Age</label>
+                <input type="number" id="age" th:field="*{age}"
+                       min="1" max="120">
+                <span th:if="${#fields.hasErrors('age')}"
+                      th:errors="*{age}" class="erreur-champ">
+                </span>
+            </div>
+
+            <div class="champ-formulaire">
+                <label for="pays">Pays</label>
+                <input type="text" id="pays" th:field="*{pays}"
+                       placeholder="Votre pays">
+                <span th:if="${#fields.hasErrors('pays')}"
+                      th:errors="*{pays}" class="erreur-champ">
+                </span>
+            </div>
+
+            <button type="submit" class="bouton-principal">
+                Creer mon compte
+            </button>
+        </form>
+
+        <p class="lien-secondaire">
+            Deja un compte ?
+            <a th:href="@{/connexion}">Se connecter</a>
+        </p>
+    </main>
+
+    <div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>

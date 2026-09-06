@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/entete :: head('Accueil')}"></head>
+<body class="page-accueil">
+
+    <!-- Inclusion du fragment entete -->
+    <div th:replace="~{fragments/entete :: entete}"></div>
+
+    <main class="conteneur-accueil">
+        <h1>r/Place Clicker</h1>
+        <p class="slogan">
+            Dessinez, conquerez, economisez. La grille vous attend.
+        </p>
+
+        <div class="boutons-accueil">
+            <a th:href="@{/jeu}" class="bouton-principal">Voir la grille</a>
+            <!-- Affiche S'inscrire uniquement si non connecte -->
+            <a th:href="@{/inscription}" class="bouton-secondaire"
+               sec:authorize="isAnonymous()">S'inscrire</a>
+            <a th:href="@{/connexion}" class="bouton-secondaire"
+               sec:authorize="isAnonymous()">Se connecter</a>
+        </div>
+
+        <div class="resume-regles">
+            <h2>Comment jouer ?</h2>
+            <p>
+                Chaque joueur dispose de credits pour poser des pixels
+                sur une grille partagee de 50x50 cases visible en temps reel.
+                Les credits se regenerent automatiquement ou peuvent etre
+                mines manuellement. Achetez des generateurs pour accelerer
+                votre production et dominer la grille !
+            </p>
+            <a th:href="@{/regles}">Lire les regles completes</a>
+        </div>
+    </main>
+    <!-- Inclusion du fragment pied de page -->
+    <div th:replace="~{fragments/pied :: pied}"></div>
+</body>
+</html>
