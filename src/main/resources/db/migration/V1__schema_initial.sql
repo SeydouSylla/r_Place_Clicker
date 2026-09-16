@@ -1,6 +1,9 @@
--- Creation de la base de donnees rplace_db;
+-- V1 : schéma initial de r/Place Clicker
+-- Converti depuis schema.sql pour une gestion versionnée par Flyway.
+-- Flyway applique ce fichier une seule fois et enregistre sa version ;
+-- toute évolution future se fait par un nouveau fichier V2__, V3__, etc.
 
-CREATE TABLE IF NOT EXISTS joueur (
+CREATE TABLE joueur (
     identifiant        BIGSERIAL PRIMARY KEY,
     pseudo             VARCHAR(20)  UNIQUE NOT NULL,
     mot_de_passe_hache VARCHAR(255) NOT NULL,
@@ -11,7 +14,7 @@ CREATE TABLE IF NOT EXISTS joueur (
     derniere_activite  TIMESTAMP    DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS pixel (
+CREATE TABLE pixel (
     identifiant      BIGSERIAL PRIMARY KEY,
     position_x       INTEGER NOT NULL CHECK (position_x >= 0 AND position_x < 50),
     position_y       INTEGER NOT NULL CHECK (position_y >= 0 AND position_y < 50),
@@ -22,7 +25,7 @@ CREATE TABLE IF NOT EXISTS pixel (
     UNIQUE (position_x, position_y)
 );
 
-CREATE TABLE IF NOT EXISTS historique_pixel (
+CREATE TABLE historique_pixel (
     identifiant BIGSERIAL PRIMARY KEY,
     position_x  INTEGER   NOT NULL,
     position_y  INTEGER   NOT NULL,
@@ -33,7 +36,7 @@ CREATE TABLE IF NOT EXISTS historique_pixel (
     date_pose   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS type_bonus (
+CREATE TABLE type_bonus (
     identifiant    BIGSERIAL PRIMARY KEY,
     nom            VARCHAR(50)    UNIQUE NOT NULL,
     categorie      VARCHAR(20)    NOT NULL,
@@ -42,7 +45,7 @@ CREATE TABLE IF NOT EXISTS type_bonus (
     description    VARCHAR(200)
 );
 
-CREATE TABLE IF NOT EXISTS joueur_bonus (
+CREATE TABLE joueur_bonus (
     identifiant   BIGSERIAL PRIMARY KEY,
     joueur_id     BIGINT NOT NULL REFERENCES joueur(identifiant),
     type_bonus_id BIGINT NOT NULL REFERENCES type_bonus(identifiant),
@@ -51,10 +54,7 @@ CREATE TABLE IF NOT EXISTS joueur_bonus (
     UNIQUE (joueur_id, type_bonus_id)
 );
 
--- Index pour les requetes frequentes
-CREATE INDEX IF NOT EXISTS idx_pixel_joueur
-    ON pixel(joueur_id);
-CREATE INDEX IF NOT EXISTS idx_historique_joueur
-    ON historique_pixel(joueur_id);
-CREATE INDEX IF NOT EXISTS idx_historique_date
-    ON historique_pixel(date_pose);
+-- Index pour les requêtes fréquentes
+CREATE INDEX idx_pixel_joueur      ON pixel(joueur_id);
+CREATE INDEX idx_historique_joueur ON historique_pixel(joueur_id);
+CREATE INDEX idx_historique_date   ON historique_pixel(date_pose);

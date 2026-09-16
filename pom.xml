@@ -79,6 +79,22 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway : migrations de base de donnees versionnees -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- Actuator : sondes de sante /actuator/health -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- DevTools : rechargement automatique en developpement -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
