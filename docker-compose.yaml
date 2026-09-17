@@ -1,43 +1,90 @@
+# Fichier unique, valable en développement ET en production.
+# Le comportement dépend des variables du fichier .env :
+#
+#   - En développement (pas de APP_IMAGE défini) :
+#       l'application est construite localement (build: .)
+#       et Traefik n'est pas lancé (on accède via localhost).
+#
+#   - En production sur le VPS (APP_IMAGE défini) :
+#       l'application est TÉLÉCHARGÉE depuis GHCR (image)
+#       et Traefik gère le domaine + HTTPS.
+#
+# En dev  : docker compose up --build app database
+# En prod : docker compose --profile prod up -d
+
 services:
 
-  database:
-    image: postgres:13
-    container_name: r-place-clicker-db
+  # Reverse proxy + HTTPS. Actif uniquement avec le profil "prod".
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    profiles: ["prod"]
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik_letsencrypt:/letsencrypt"
 
+  database:
+    image: postgres:16-alpine
+    container_name: rplace-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
-    ports:
-      - "${POSTGRES_PORT}:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-
   app:
+    # En prod, APP_IMAGE pointe vers GHCR -> l'image est téléchargée.
+    # En dev, APP_IMAGE n'est pas défini -> build local (tag rplace:local).
+    image: ${APP_IMAGE:-rplace:local}
     build: .
-    container_name: r-place-clicker
-
-    ports:
-      - "${APP_PORT}:8080"
-
+    container_name: rplace-app
+    restart: unless-stopped
     depends_on:
       database:
         condition: service_healthy
-
+    # Port publié uniquement en dev (accès direct localhost).
+    # En prod, on n'expose pas l'app : tout passe par Traefik.
+    ports:
+      - "${APP_PORT:-8080}:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rplace.rule=Host(`${APP_DOMAIN:-localhost}`)"
+      - "traefik.http.routers.rplace.entrypoints=websecure"
+      - "traefik.http.routers.rplace.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rplace.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
 
 volumes:
   postgres_data:
+  traefik_letsencrypt:
