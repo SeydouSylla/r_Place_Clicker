@@ -41,7 +41,7 @@ CREATE TABLE type_bonus (
     nom            VARCHAR(50)    UNIQUE NOT NULL,
     categorie      VARCHAR(20)    NOT NULL,
     prix_base      INTEGER        NOT NULL,
-    multiplicateur NUMERIC(10,4)  NOT NULL DEFAULT 0,
+    multiplicateur DOUBLE PRECISION NOT NULL DEFAULT 0,
     description    VARCHAR(200)
 );
 
