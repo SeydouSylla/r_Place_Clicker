@@ -1,0 +1,79 @@
+# Configuration Docker Compose pour la production.
+#
+# L'application utilise l'image Docker publiée sur GHCR
+# par le pipeline CI/CD.
+#
+# Traefik gère le domaine public et HTTPS via Let's Encrypt.
+#
+# Le déploiement est effectué sur le VPS
+
+services:
+
+  # Reverse proxy + HTTPS. Actif uniquement avec le profil "prod".
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik_letsencrypt:/letsencrypt"
+
+  database:
+    image: postgres:16-alpine
+    container_name: rplace-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    # Image téléchargée depuis GHCR (publiée par le pipeline).
+    image: ${APP_IMAGE}
+    container_name: rplace-app
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    # L'app n'est pas exposée directement : tout le trafic passe par Traefik.
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rplace.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.rplace.entrypoints=websecure"
+      - "traefik.http.routers.rplace.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rplace.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+volumes:
+  postgres_data:
+  traefik_letsencrypt:
