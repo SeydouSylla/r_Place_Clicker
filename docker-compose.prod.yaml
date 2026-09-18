@@ -1,19 +1,19 @@
-# Configuration Docker Compose pour la production.
-#
-# L'application utilise l'image Docker publiée sur GHCR
-# par le pipeline CI/CD.
-#
-# Traefik gère le domaine public et HTTPS via Let's Encrypt.
-#
-# Le déploiement est effectué sur le VPS
+# Configuration de PRODUCTION / STAGING (sur le VPS).
+# L'application utilise l'image Docker publiee sur GHCR par le
+# pipeline CI/CD. Traefik gere le domaine public et le HTTPS
+# via Let's Encrypt.
+# Lancement : docker compose -f docker-compose.prod.yaml up -d
 
 services:
 
-  # Reverse proxy + HTTPS. Actif uniquement avec le profil "prod".
+  # Reverse proxy + HTTPS pour la production.
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.7.13
     container_name: traefik
     restart: unless-stopped
+    # Force le client Docker interne de Traefik a utiliser l'API 1.40.
+    environment:
+      DOCKER_API_VERSION: "1.40"
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -49,14 +49,14 @@ services:
       retries: 10
 
   app:
-    # Image téléchargée depuis GHCR (publiée par le pipeline).
+    # Image telechargee depuis GHCR (publiee par le pipeline).
     image: ${APP_IMAGE}
     container_name: rplace-app
     restart: unless-stopped
     depends_on:
       database:
         condition: service_healthy
-    # L'app n'est pas exposée directement : tout le trafic passe par Traefik.
+    # L'app n'est pas exposee directement : tout le trafic passe par Traefik.
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
