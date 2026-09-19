@@ -12,7 +12,6 @@ services:
 
   database:
     image: postgres:16-alpine
-    container_name: rplace-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -28,7 +27,6 @@ services:
 
   app:
     image: ${APP_IMAGE}
-    container_name: rplace-app
     restart: unless-stopped
     depends_on:
       database:
