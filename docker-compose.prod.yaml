@@ -35,13 +35,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    # L'app ecoute sur le port 8090 de l'hote (toutes interfaces).
-    # k3s doit pouvoir la joindre depuis ses pods : on ne peut donc
-    # pas se limiter a 127.0.0.1. Le pare-feu (ufw) protege l'acces
-    # externe ; seul k3s (en local) et l'hote joignent ce port.
-    # Port LOCAL de l'hote sur lequel l'app est exposee, defini par
-    # APP_PORT dans le .env (8090 pour staging, 8091 pour production).
-    # Permet aux deux environnements de cohabiter sur le meme VPS.
+    # Port LOCAL de l'hote sur lequel l'app est exposee (defini par
+    # APP_PORT dans le .env : 8090 pour staging, 8091 pour production).
+    # Expose sur toutes les interfaces pour que k3s puisse joindre l'app
+    # depuis ses pods ; l'acces externe a ce port est bloque par le
+    # pare-feu (ufw). Des ports distincts permettent aux deux
+    # environnements de cohabiter sur le meme VPS.
     ports:
       - "${APP_PORT}:8080"
     healthcheck:
