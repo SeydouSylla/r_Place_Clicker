@@ -1,0 +1,57 @@
+# Configuration de PRODUCTION / STAGING (sur le VPS).
+#
+# Sur ce VPS, k3s tient deja les ports 80/443 et gere les
+# certificats HTTPS via cert-manager. r/place NE gere donc PAS
+# lui-meme le HTTPS : il expose son application sur un port LOCAL
+# du VPS (8090). L'ingress k3s recoit le trafic public HTTPS pour
+# staging.rplace.ssylla.com et le transmet a ce port local.
+# => Pas de Traefik ici, pas de challenge ACME : k3s s'en charge.
+# Lancement : docker compose -f docker-compose.prod.yaml up -d
+
+services:
+
+  database:
+    image: postgres:16-alpine
+    container_name: rplace-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: ${APP_IMAGE}
+    container_name: rplace-app
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    # L'app ecoute sur le port 8090 de l'hote (toutes interfaces).
+    # k3s doit pouvoir la joindre depuis ses pods : on ne peut donc
+    # pas se limiter a 127.0.0.1. Le pare-feu (ufw) protege l'acces
+    # externe ; seul k3s (en local) et l'hote joignent ce port.
+    # Port LOCAL de l'hote sur lequel l'app est exposee, defini par
+    # APP_PORT dans le .env (8090 pour staging, 8091 pour production).
+    # Permet aux deux environnements de cohabiter sur le meme VPS.
+    ports:
+      - "${APP_PORT}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+volumes:
+  postgres_data:

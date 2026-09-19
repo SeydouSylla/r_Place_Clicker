@@ -38,6 +38,9 @@ public class ConfigurationSecurite {
     public SecurityFilterChain filtreSecurite(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        // Sonde de sante : accessible sans authentification.
+                        // Necessaire au healthcheck Docker et a Traefik.
+                        .requestMatchers("/actuator/health").permitAll()
                         // Pages accessibles a tous (visiteurs inclus)
                         // On a ajoute /jeu et /stats/** parce que le cahier des charges dit :
                         // "Un utilisateur non connecte verra la grille etre modifiee en temps reel

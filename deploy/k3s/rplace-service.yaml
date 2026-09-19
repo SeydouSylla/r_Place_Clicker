@@ -1,0 +1,37 @@
+# Service + Endpoints : fait le pont entre k3s et le conteneur
+# Docker r/place qui ecoute sur 127.0.0.1:8090 du VPS.
+# k3s ne "voit" pas les conteneurs Docker directement. On lui
+# declare donc manuellement un Endpoint qui pointe vers l'IP
+# de l'hote (le VPS) sur le port 8090.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rplace-staging
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rplace-externe
+  namespace: rplace-staging
+spec:
+  # Pas de selecteur : les Endpoints sont definis manuellement ci-dessous.
+  ports:
+    - port: 8090          # port du Service (cote k3s)
+      targetPort: 8090    # port reel sur l'hote
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: rplace-externe          # doit avoir le MEME nom que le Service
+  namespace: rplace-staging
+subsets:
+  - addresses:
+      # Adresse de la passerelle docker0 : c'est par cette IP que les
+      # pods k3s joignent les conteneurs Docker publies sur l'hote.
+      # Verifiee fonctionnelle : curl http://172.17.0.1:8090 -> UP.
+      - ip: 172.17.0.1
+    ports:
+      - port: 8090
+        protocol: TCP

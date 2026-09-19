@@ -1,0 +1,30 @@
+# Ingress : expose staging.rplace.ssylla.com en HTTPS via le
+# Traefik de k3s, avec certificat Let's Encrypt gere par
+# cert-manager (meme ClusterIssuer que planifio).
+# Le trafic est route vers le Service rplace-externe, qui
+# pointe lui-meme vers le conteneur Docker (127.0.0.1:8090).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rplace-ingress
+  namespace: rplace-staging
+  annotations:
+    # cert-manager genere automatiquement le certificat via ce issuer
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - staging.rplace.ssylla.com
+      secretName: rplace-staging-tls   # cert-manager stockera le certificat ici
+  rules:
+    - host: staging.rplace.ssylla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rplace-externe
+                port:
+                  number: 8090

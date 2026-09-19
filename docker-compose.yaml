@@ -1,43 +1,46 @@
+# Développement local uniquement.
+# Construit l'application depuis le code (build) et l'expose
+# directement sur localhost. Pas de Traefik, pas de HTTPS.
+#
+#   docker compose up --build
+#   -> application sur http://localhost:8080
+#
+# Pour la production/staging, voir deploy/docker-compose.yml
+# (image depuis GHCR + Traefik + HTTPS).
+
 services:
 
   database:
-    image: postgres:13
-    container_name: r-place-clicker-db
-
+    image: postgres:16-alpine
+    container_name: rplace-db-dev
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
+      POSTGRES_DB: ${POSTGRES_DB:-rplace_db}
+      POSTGRES_USER: ${POSTGRES_USER:-rplace}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "${POSTGRES_PORT}:5432"
-
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
+      - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rplace}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-
   app:
     build: .
-    container_name: r-place-clicker
-
-    ports:
-      - "${APP_PORT}:8080"
-
+    container_name: rplace-app-dev
+    restart: unless-stopped
     depends_on:
       database:
         condition: service_healthy
-
+    ports:
+      - "${APP_PORT:-8080}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB:-rplace_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-rplace}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
 
 volumes:
-  postgres_data:
+  postgres_data_dev:

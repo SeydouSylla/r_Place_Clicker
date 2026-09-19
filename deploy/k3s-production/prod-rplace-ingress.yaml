@@ -1,0 +1,28 @@
+# Ingress (PRODUCTION) : expose rplace.ssylla.com en HTTPS via
+# l'ingress k3s, avec certificat Let's Encrypt gere par
+# cert-manager (ClusterIssuer letsencrypt-prod).
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rplace-ingress
+  namespace: rplace-production
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - rplace.ssylla.com
+      secretName: rplace-production-tls
+  rules:
+    - host: rplace.ssylla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rplace-externe
+                port:
+                  number: 8091

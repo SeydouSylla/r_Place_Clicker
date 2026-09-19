@@ -1,0 +1,34 @@
+# Service + Endpoints (PRODUCTION) : pont entre k3s et le
+# conteneur Docker r/place de production, qui ecoute sur
+# 172.17.0.1:8091 du VPS.
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rplace-production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rplace-externe
+  namespace: rplace-production
+spec:
+  ports:
+    - port: 8091
+      targetPort: 8091
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: rplace-externe
+  namespace: rplace-production
+subsets:
+  - addresses:
+      # Passerelle docker0 : par cette IP, les pods k3s joignent
+      # les conteneurs Docker publies sur l'hote.
+      - ip: 172.17.0.1
+    ports:
+      - port: 8091
+        protocol: TCP

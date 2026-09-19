@@ -1,0 +1,113 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+
+  # 1. Tests : verifie que l'application compile et passe les tests,
+  #    avec une vraie base PostgreSQL de service.
+  
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rplace_db
+          POSTGRES_USER: rplace
+          POSTGRES_PASSWORD: test_password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rplace"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Executer les tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rplace_db
+          SPRING_DATASOURCE_USERNAME: rplace
+          SPRING_DATASOURCE_PASSWORD: test_password
+        run: ./mvnw test -B
+
+  # 2. Build & push : construit l'image Docker et la publie sur GHCR.
+  #    Ne s'execute que sur push (pas sur les pull requests).
+
+  build-and-push:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Connexion a GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determiner l'environnement selon la branche
+        id: env
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "name=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Normaliser le nom du proprietaire en minuscules
+        id: owner
+        run: echo "name=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Build et push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.name }}/r_place_clicker:${{ steps.env.outputs.name }}-${{ github.sha }}
+            ghcr.io/${{ steps.owner.outputs.name }}/r_place_clicker:${{ steps.env.outputs.name }}-latest
+
+  # 3. Deploy : se connecte au VPS par SSH et relance Docker Compose
+  #    avec la nouvelle image. Aucun port sensible n'est ouvert :
+  #    seul le port SSH est utilise.
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determiner le dossier cible selon la branche
+        id: target
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "dir=~/rplace/production" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=~/rplace/staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploiement par SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            cd ${{ steps.target.outputs.dir }}
+            docker compose --profile prod pull
+            docker compose --profile prod up -d
+            docker image prune -f
